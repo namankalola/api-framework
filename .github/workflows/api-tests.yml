@@ -1,0 +1,83 @@
+name: API tests
+
+# Runs only for API changes and API deployments; web changes do not trigger it.
+on:
+  pull_request:
+    paths: ['api-tests/**', '.github/workflows/api-tests.yml']
+  push:
+    branches: [main]
+    paths: ['api-tests/**', '.github/workflows/api-tests.yml']
+  schedule:
+    - cron: '0 3 * * *' # nightly full regression
+  workflow_dispatch:
+    inputs:
+      test_env:
+        description: Environment
+        default: qa
+        type: choice
+        options: [dev, qa, stage]
+      grep:
+        description: Tag filter (e.g. @smoke)
+        default: ''
+  # Call from an API deployment pipeline: uses: ./.github/workflows/api-tests.yml
+  workflow_call:
+    inputs:
+      test_env:
+        type: string
+        default: qa
+      grep:
+        type: string
+        default: ''
+    secrets: inherit
+
+defaults:
+  run:
+    working-directory: api-tests
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI: true
+      TEST_ENV: ${{ inputs.test_env || 'qa' }}
+      PETSTORE_API_KEY: ${{ secrets.PETSTORE_API_KEY }}
+      CHAT_WEBHOOK_URL: ${{ secrets.CHAT_WEBHOOK_URL }}
+      CHAT_PROVIDER: slack
+      REPORT_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # spec diff compares against the base branch
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: api-tests/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run test:unit
+
+      # PRs: report breaking spec changes (fails the job when the spec breaks existing clients).
+      - name: Spec diff
+        if: github.event_name == 'pull_request'
+        run: |
+          for spec in $(git diff --relative --name-only origin/${{ github.base_ref }} -- specs/); do
+            git cat-file -e origin/${{ github.base_ref }}:./"$spec" 2>/dev/null || { echo "new spec: $spec"; continue; }
+            npm run --silent spec:diff -- --git origin/${{ github.base_ref }} --new "$spec"
+          done
+
+      # PRs run the fast subset; nightly, manual and deployment runs execute everything.
+      - name: API tests
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            npx playwright test --project=api --grep "@smoke|@contract|@regression"
+          else
+            npx playwright test --project=api ${{ inputs.grep && format('--grep "{0}"', inputs.grep) || '' }}
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: api-html-report-${{ env.TEST_ENV }}
+          path: api-tests/reports/html
+          retention-days: 14

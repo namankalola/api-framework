@@ -1,0 +1,95 @@
+{
+  "info": {
+    "_postman_id": "6f1c1d2e-0000-4000-8000-000000000001",
+    "name": "JSONPlaceholder",
+    "description": "Sample collection: copy into specs/ to see Postman drop-in support.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [{ "key": "baseUrl", "value": "https://jsonplaceholder.typicode.com" }],
+  "item": [
+    {
+      "name": "Posts",
+      "item": [
+        {
+          "name": "List posts",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/posts?userId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts"],
+              "query": [{ "key": "userId", "value": "1" }]
+            }
+          },
+          "response": [
+            {
+              "name": "OK",
+              "code": 200,
+              "status": "OK",
+              "body": "[{\"userId\":1,\"id\":1,\"title\":\"sunt aut facere\",\"body\":\"quia et suscipit\"},{\"userId\":1,\"id\":2,\"title\":\"qui est esse\",\"body\":\"est rerum tempore\"}]"
+            }
+          ]
+        },
+        {
+          "name": "Get post",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/posts/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["posts", ":id"],
+              "variable": [{ "key": "id", "value": "1" }]
+            }
+          },
+          "response": [
+            {
+              "name": "OK",
+              "code": 200,
+              "body": "{\"userId\":1,\"id\":1,\"title\":\"sunt aut facere\",\"body\":\"quia et suscipit\"}"
+            }
+          ]
+        },
+        {
+          "name": "Create post",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"title\":\"foo\",\"body\":\"bar\",\"userId\":1}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{baseUrl}}/posts", "host": ["{{baseUrl}}"], "path": ["posts"] }
+          },
+          "response": [
+            {
+              "name": "Created",
+              "code": 201,
+              "body": "{\"title\":\"foo\",\"body\":\"bar\",\"userId\":1,\"id\":101}"
+            }
+          ]
+        },
+        {
+          "name": "Update post",
+          "request": {
+            "method": "PUT",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"id\":1,\"title\":\"foo\",\"body\":\"bar\",\"userId\":1}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/posts/:id"
+          },
+          "response": [
+            { "name": "OK", "code": 200, "body": "{\"id\":1,\"title\":\"foo\",\"body\":\"bar\",\"userId\":1}" }
+          ]
+        },
+        {
+          "name": "Delete post",
+          "request": { "method": "DELETE", "url": "{{baseUrl}}/posts/:id" },
+          "response": [{ "name": "OK", "code": 200, "body": "{}" }]
+        }
+      ]
+    }
+  ]
+}

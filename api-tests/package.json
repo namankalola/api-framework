@@ -1,0 +1,59 @@
+{
+  "name": "api-tests",
+  "version": "1.0.0",
+  "description": "API test framework (Playwright + OpenAPI/Postman). Self-contained: run all commands from this folder or with npm --prefix api-tests.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "playwright test",
+    "test:unit": "playwright test --project=unit",
+    "test:api": "playwright test --project=api",
+    "test:smoke": "playwright test --grep @smoke",
+    "test:regression": "playwright test --grep @regression",
+    "test:generated": "playwright test --project=api tests/generated",
+    "test:contract": "playwright test --grep @contract",
+    "test:positive": "playwright test --grep @positive",
+    "test:negative": "playwright test --grep @negative",
+    "test:boundary": "playwright test --grep @boundary",
+    "test:security": "playwright test --grep @security",
+    "test:resilience": "playwright test --grep @resilience",
+    "test:performance": "playwright test --grep @performance",
+    "gen": "node scripts/generate-tests.js",
+    "spec:refresh": "node scripts/refresh-spec.js",
+    "spec:diff": "node scripts/spec-diff.js",
+    "report": "playwright show-report reports/html",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@apidevtools/swagger-parser": "^13.1.0",
+    "@eslint/js": "^10.0.1",
+    "@faker-js/faker": "^10.6.0",
+    "@playwright/test": "^1.64.1",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "dotenv": "^18.0.9",
+    "eslint": "^10.14.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-playwright": "^2.12.2",
+    "globals": "^17.14.0",
+    "js-yaml": "^5.5.0",
+    "json-schema-faker": "^0.6.3",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.10"
+  }
+}

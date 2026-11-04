@@ -1,0 +1,5 @@
+# Merge this into the web repo's existing .husky/pre-commit.
+# If that hook already runs `npx lint-staged` at the root, add nothing: lint-staged also picks up
+# api-tests/package.json and runs its tasks on api-tests files only.
+# Otherwise add this line:
+cd api-tests && npx lint-staged
