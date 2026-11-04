@@ -19,7 +19,9 @@ on:
       grep:
         description: Tag filter (e.g. @smoke)
         default: ''
-  # Call from an API deployment pipeline: uses: ./.github/workflows/api-tests.yml
+  # Call from an API deployment pipeline:
+  #   uses: ./.github/workflows/api-tests.yml
+  #   secrets: inherit        # (in the caller) passes PETSTORE_API_KEY, CHAT_WEBHOOK_URL, ...
   workflow_call:
     inputs:
       test_env:
@@ -28,7 +30,6 @@ on:
       grep:
         type: string
         default: ''
-    secrets: inherit
 
 defaults:
   run:
